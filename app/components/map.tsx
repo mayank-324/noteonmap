@@ -1,6 +1,4 @@
 import {
-    MapContainer,
-    TileLayer,
     Marker,
     Popup,
     useMapEvents,
@@ -10,6 +8,9 @@ import L from 'leaflet';
 import { useState, useEffect } from 'react';
 import CreateNote, { Note } from './createnote';
 import { LatLngExpression, LeafletMouseEvent } from 'leaflet';
+import { MapContainer, TileLayer, LayersControl } from 'react-leaflet';
+
+const { BaseLayer, Overlay } = LayersControl;
 
 // Fix default icon issues in Leaflet
 delete (L.Icon.Default.prototype as { _getIconUrl?: unknown })._getIconUrl;
@@ -93,12 +94,29 @@ const Map: React.FC = () => {
                 scrollWheelZoom={true}
                 style={{ height: '100vh', width: '100%' }}
             >
-                <TileLayer
-                    url="https://tiles.stadiamaps.com/tiles/alidade_satellite/{z}/{x}/{y}{r}.jpg"
-                    attribution='&copy; CNES, Distribution Airbus DS, © Airbus DS, © PlanetObserver (Contains Copernicus Data) | &copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    minZoom={0}
-                    maxZoom={20}
-                />
+                <LayersControl position="topright">
+                    <BaseLayer checked name="Satellite + Labels">
+                        <>
+                            {/* Satellite imagery */}
+                            <TileLayer
+                                url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                                attribution='Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community'
+                            />
+                            {/* Transparent labels overlay */}
+                            <TileLayer
+                                url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+                                attribution='Labels &copy; Esri'
+                            />
+                        </>
+                    </BaseLayer>
+
+                    <BaseLayer name="Street Map">
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; OpenStreetMap contributors'
+                        />
+                    </BaseLayer>
+                </LayersControl>
 
 
                 <MapEvents />
